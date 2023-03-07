@@ -4,6 +4,16 @@ Work related to the Security and Network Systems course unit in my masters degre
 
 ---
 
+## Course activities
+
 LAB1: [Course introduction](https://app.hackthebox.com/starting-point) in HackTheBox
 
 LAB2: [Packet Sniffing and Spoofing Lab](https://seedsecuritylabs.org/Labs_20.04/Networking/Sniffing_Spoofing/) in SEEDLabs
+
+LAB3: [ARP Cache Poisoning Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Networking/ARP_Attack/) in SEEDLabs
+
+---
+
+## References
+
+[Docker manual](https://github.com/seed-labs/seed-labs/blob/master/manuals/docker/SEEDManual-Container.md)
