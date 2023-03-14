@@ -12,6 +12,8 @@ LAB2: [Packet Sniffing and Spoofing Lab](https://seedsecuritylabs.org/Labs_20.04
 
 LAB3: [ARP Cache Poisoning Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Networking/ARP_Attack/) in SEEDLabs
 
+LAB4: [TCP Attacks Lab](https://seedsecuritylabs.org/Labs_20.04/Networking/TCP_Attacks/) in SEEDLabs
+
 ---
 
 ## References
