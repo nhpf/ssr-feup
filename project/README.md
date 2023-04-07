@@ -64,5 +64,6 @@ Claro que as sugestões também dependem do progresso que forem fazendo ao longo
  - [Sqlite3 Python documentation](https://docs.python.org/3/library/sqlite3.html)
  - [Flask documentation](https://flask.palletsprojects.com/en/2.2.x/)
  - [DigitalOcean article Flask + SQLite](https://www.digitalocean.com/community/tutorials/how-to-use-an-sqlite-database-in-a-flask-application)
+ - [Blobs in SQLite](https://stackoverflow.com/questions/51301395/how-to-store-a-jpg-in-an-sqlite-database-with-python)
  - [Breakable Flask GitHub repo](https://github.com/stephenbradshaw/breakableflask)
  - [Firebase documentation](https://firebase.google.com/docs)
