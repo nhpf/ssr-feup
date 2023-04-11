@@ -8,9 +8,13 @@
     <div>
         {% for user in users %}
             <div>
-                {% for key in user.keys() %}
-                    <p>{{ user[key] }}</p>
-                {% endfor %}
+                {{ user['id'] }}<br>
+                {{ user['created'] }}<br>
+                {{ user['name'] }}<br>
+                {{ user['email'] }}<br>
+                {{ user['password'] }}<br>
+                {{ user['secret'] }}<br>
+                <img src="data:image/png;base64, {{ user['image'].decode('utf-8') }}"/>
             </div>
         {% endfor %}
     </div>

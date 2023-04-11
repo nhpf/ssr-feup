@@ -1,9 +1,10 @@
 import os
 import json
+import base64
 import sqlite3
 from flask import Flask, render_template
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder="templates")
 
 
 def create_db_file(fill_sample_data: bool = True) -> None:
@@ -15,7 +16,7 @@ def create_db_file(fill_sample_data: bool = True) -> None:
         cur = db_connection.cursor()
 
         with open("sample_data/img.png", "rb") as img_file:
-            img_blob = img_file.read()
+            img_b64 = base64.b64encode(img_file.read())
 
         with open("sample_data/users.json", "r", encoding="utf-8") as sample_data_file:
             sample_data = json.load(sample_data_file)
@@ -28,7 +29,7 @@ def create_db_file(fill_sample_data: bool = True) -> None:
                     sample_data[user_name]["email"],
                     sample_data[user_name]["password"],
                     sample_data[user_name]["secret"],
-                    sqlite3.Binary(img_blob),
+                    img_b64,
                 ),
             )
 
@@ -45,9 +46,9 @@ def get_db_connection() -> sqlite3.Connection:
 @app.route("/")
 def index():
     conn = get_db_connection()
-    posts = conn.execute("SELECT * FROM users").fetchall()
+    users = conn.execute("SELECT * FROM users").fetchall()
     conn.close()
-    return render_template("index.html", posts=posts)
+    return render_template("index.html", users=users)
 
 
 if __name__ == "__main__":
