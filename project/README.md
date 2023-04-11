@@ -28,6 +28,13 @@ The `./enterprise` application uses external services for critical processes, su
 
 ## Execution
 
+> If you want to use a virtual environment, run
+> ```bash
+> python -m venv venv
+> source venv/bin/activate
+> ```
+> And then proceed with the following step.
+
 To install the required modules run:
 ```bash
 pip install -r requirements.txt
