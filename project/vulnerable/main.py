@@ -2,6 +2,7 @@ import os
 import json
 import base64
 import sqlite3
+import psycopg2
 from flask import Flask, render_template, flash, request, redirect, url_for
 
 app = Flask(__name__, template_folder="templates")
@@ -36,19 +37,20 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        
+        print("Email:", email)
+        print("Password:", password)
         # execute an SQL query to check if the user exists in the database
         #conn = get_db_connection()
         conn = sqlite3.connect('users.db')
         cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
+        cur.execute("SELECT email, password FROM users WHERE email=? AND password=?", (email, password))
         user = cur.fetchone()
         
         if user:
             # if the user exists, redirect to their dashboard
-            flash('Login successful')
             conn.close()
-            return redirect(url_for('index'))
+            return ('Login successful <br/>'\
+				'Proceed to <a href="/">Index</a> ')
         else:
             # if the user doesn't exist, display an error message
             conn.close()
@@ -61,7 +63,7 @@ def login():
     
 @app.route('/signup', methods=['GET','POST'])
 def signup():
-    if request.method == 'GET' or request.method == 'POST':
+    if request.method == 'POST':
     #conn = get_db_connection()
         conn = sqlite3.connect('users.db')
         cur = conn.cursor()
@@ -71,12 +73,17 @@ def signup():
         cur.execute("SELECT email FROM users WHERE email=?", (email,))
         dbemail = cur.fetchone()
         if dbemail or not email:
+            conn.close()
             return ('User already registered <br/>'\
                     'Go <a href="/login">Login</a> ')
         else:
             cur.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
+            conn.commit()
+            conn.close()
         return ('User signed up <br/>'\
                     'Go <a href="/login">Login</a> ')
+    else:
+        return render_template("signup.html")
 
 
 

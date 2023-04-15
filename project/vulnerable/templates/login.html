@@ -8,9 +8,9 @@
     <h1>Login</h1>
     <form action="{{ url_for('login') }}" method="post">
       <label for="email">E-mail:</label>
-      <input type="text" id="email" email="email" required><br>
+      <input type="text" id="email" name="email" required><br>
       <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required><br>
+      <input type="text" id="password" name="password" required><br>
       <input type="submit" value="Submit">
     </form>
   </body>
