@@ -2,55 +2,91 @@ import os
 import json
 import base64
 import sqlite3
-from flask import Flask, render_template
+from flask import Flask, render_template, flash, request, redirect, url_for
 
 app = Flask(__name__, template_folder="templates")
 
 
-def create_db_file(fill_sample_data: bool = True) -> None:
-    db_connection = sqlite3.connect("database.db")
-    with open("schema.sql") as db_schema:
-        db_connection.executescript(db_schema.read())
+conn = sqlite3.connect('users.db')
 
-    if fill_sample_data:
-        cur = db_connection.cursor()
+# Create a cursor object
+cursor = conn.cursor()
 
-        with open("sample_data/img.png", "rb") as img_file:
-            img_b64 = base64.b64encode(img_file.read())
+# Create a table to store user information if it doesn't already exist
+cursor.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY,
+                 name TEXT,
+                 email TEXT,
+                 password TEXT)''')
 
-        with open("sample_data/users.json", "r", encoding="utf-8") as sample_data_file:
-            sample_data = json.load(sample_data_file)
-
-        for user_name in sample_data.keys():
-            cur.execute(
-                """INSERT INTO users (name, email, password, secret, image) VALUES (?, ?, ?, ?, ?)""",
-                (
-                    user_name,
-                    sample_data[user_name]["email"],
-                    sample_data[user_name]["password"],
-                    sample_data[user_name]["secret"],
-                    img_b64,
-                ),
-            )
-
-    db_connection.commit()
-    db_connection.close()
-
-
-def get_db_connection() -> sqlite3.Connection:
-    connection = sqlite3.connect("database.db")
-    connection.row_factory = sqlite3.Row
-    return connection
-
+conn.close()
 
 @app.route("/")
 def index():
-    conn = get_db_connection()
-    users = conn.execute("SELECT * FROM users").fetchall()
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    #conn = get_db_connection()
+    users = cursor.execute("SELECT * FROM users").fetchall()
     conn.close()
-    return render_template("index.html", users=users)
+    return render_template("signup.html", users=users)
+
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        # execute an SQL query to check if the user exists in the database
+        #conn = get_db_connection()
+        conn = sqlite3.connect('users.db')
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
+        user = cur.fetchone()
+        
+        if user:
+            # if the user exists, redirect to their dashboard
+            flash('Login successful')
+            conn.close()
+            return redirect(url_for('index'))
+        else:
+            # if the user doesn't exist, display an error message
+            conn.close()
+            return ('Invalid email or password <br/>'\
+				'Go back to <a href="/login">Login</a> '\
+				'or <br/> <a href="/signup">Sign Up</a> Page')
+    else:
+        return render_template('login.html')
+    
+    
+@app.route('/signup', methods=['GET','POST'])
+def signup():
+    if request.method == 'GET' or request.method == 'POST':
+    #conn = get_db_connection()
+        conn = sqlite3.connect('users.db')
+        cur = conn.cursor()
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        cur.execute("SELECT email FROM users WHERE email=?", (email,))
+        dbemail = cur.fetchone()
+        if dbemail or not email:
+            return ('User already registered <br/>'\
+                    'Go <a href="/login">Login</a> ')
+        else:
+            cur.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
+        return ('User signed up <br/>'\
+                    'Go <a href="/login">Login</a> ')
+
+
+
+
 
 
 if __name__ == "__main__":
-    if not os.path.isfile("database.db"):
-        create_db_file()
+    #if not os.path.isfile("database.db"):
+     #   create_db_file()
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+
+    app.run(host = '127.0.0.1', port = 5000)
