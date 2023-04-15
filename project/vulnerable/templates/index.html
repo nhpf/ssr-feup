@@ -6,17 +6,9 @@
 </head>
 <body>
     <div>
-        {% for user in users %}
-            <div>
-                {{ user['id'] }}<br>
-                {{ user['created'] }}<br>
-                {{ user['name'] }}<br>
-                {{ user['email'] }}<br>
-                {{ user['password'] }}<br>
-                {{ user['secret'] }}<br>
-                <img src="data:image/png;base64, {{ user['image'].decode('utf-8') }}"/>
-            </div>
-        {% endfor %}
+        <h1>Vulnerable Vault Application</h1>
+        <a href="/login" style="margin: 1rem;">Login</a><br>
+        <a href="/signup" style="margin: 1rem;">Signup</a>
     </div>
 </body>
 </html>
