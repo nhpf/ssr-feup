@@ -80,6 +80,7 @@
       <footer class="card-footer">
         <div class="card-footer-item">
           <button
+            @click="signUpAction"
             class="button is-primary is-medium"
             style="width: 200px"
             :disabled="
@@ -105,6 +106,7 @@
 
 <script lang="ts">
 import { ref, computed } from "vue";
+import { createUserWithEmailAndPassword } from "@firebase/auth";
 export default {
   setup() {
     const name = ref("");
@@ -127,6 +129,21 @@ export default {
     );
     const isPasswordTooLong = computed(() => password.value.length > 20);
 
+    const { auth } = useFirebase();
+    const router = useRouter();
+    const signUpAction = () => {
+      createUserWithEmailAndPassword(auth, email.value, password.value)
+        .then(() => {
+          console.log("Registered");
+          router.push({ path: "/vault" });
+        })
+
+        .catch((e) => {
+          console.log(e);
+          alert(e.message);
+        });
+    };
+
     return {
       name,
       email,
@@ -136,6 +153,7 @@ export default {
       isEmailValid,
       isPasswordTooShort,
       isPasswordTooLong,
+      signUpAction,
     };
   },
 };

@@ -61,6 +61,7 @@
       <footer class="card-footer">
         <div class="card-footer-item">
           <button
+            @click="loginAction"
             class="button is-primary is-medium"
             style="width: 200px"
             :disabled="!isEmailValid || isPasswordTooShort || isPasswordTooLong"
@@ -81,6 +82,7 @@
 
 <script lang="ts">
 import { ref, computed } from "vue";
+import { signInWithEmailAndPassword } from "@firebase/auth";
 export default {
   setup() {
     const email = ref("");
@@ -98,6 +100,19 @@ export default {
     );
     const isPasswordTooLong = computed(() => password.value.length > 20);
 
+    const { auth } = useFirebase();
+    const router = useRouter();
+    const loginAction = () => {
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .then(() => {
+          router.push({ path: "/vault" });
+        })
+        .catch((e) => {
+          console.log(e);
+          alert(e.message);
+        });
+    };
+
     return {
       email,
       password,
@@ -105,6 +120,7 @@ export default {
       isEmailValid,
       isPasswordTooShort,
       isPasswordTooLong,
+      loginAction,
     };
   },
 };
