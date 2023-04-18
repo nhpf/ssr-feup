@@ -107,6 +107,8 @@
 <script lang="ts">
 import { ref, computed } from "vue";
 import { createUserWithEmailAndPassword } from "@firebase/auth";
+import { doc, setDoc } from "@firebase/firestore";
+
 export default {
   setup() {
     const name = ref("");
@@ -130,14 +132,19 @@ export default {
     const isPasswordTooLong = computed(() => password.value.length > 20);
 
     const { auth } = useFirebase();
+    const { usersCol } = useDBSchema();
     const router = useRouter();
     const signUpAction = () => {
       createUserWithEmailAndPassword(auth, email.value, password.value)
-        .then(() => {
+        .then(async (credential) => {
           console.log("Registered");
-          router.push({ path: "/vault" });
+          await setDoc(doc(usersCol, credential.user.uid), {
+            name: name.value,
+            secret: "",
+            imageUrl: "",
+          });
+          await router.push({ path: "/vault" });
         })
-
         .catch((e) => {
           console.log(e);
           alert(e.message);

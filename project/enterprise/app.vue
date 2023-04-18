@@ -23,7 +23,9 @@
       style="width: 100%; height: 100%; position: relative; z-index: 2"
       class="is-flex is-align-items-center is-justify-content-center"
     >
-      <RouterView />
+      <!--TODO: do proper routing redirection later-->
+      <vault v-if="isLoggedIn" />
+      <RouterView v-else />
     </div>
     <div class="bottom-gradient" />
   </div>
@@ -32,6 +34,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { onAuthStateChanged, signOut } from "@firebase/auth";
+import Vault from "~/pages/vault.vue";
 
 const isLoggedIn = useState("isLoggedIn", () => false);
 const userId = useState("userId", () => "");
@@ -47,7 +50,10 @@ onMounted(() => {
 
 const router = useRouter();
 const signOutHandler = () => {
-  signOut(auth).then(() => router.push({ path: "/" }));
+  signOut(auth).then(() => {
+    isLoggedIn.value = false;
+    router.push({ path: "/" });
+  });
 };
 </script>
 
