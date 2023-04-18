@@ -11,7 +11,11 @@
     {% for user in users %}
         <div>
             {{ user["name"] }}'s info:
-            {{ user["email"] }}
+            Email: {{ user["email"] }} <br>
+            Password: {{ user["password"] }} <br>
+            Secret phrase: {{ user["secret"] }} <br>
+            <img src="data:image/png;base64, {{ user['image'].decode('utf-8') }}" width="100"/> 
+            <hr>
         </div>
     {% endfor %}
 
