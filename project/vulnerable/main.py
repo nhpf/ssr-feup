@@ -118,6 +118,14 @@ def signup():
     else:
         return render_template("signup.html")
 
+@app.route("/general", methods=["GET", "POST"])
+def general():
+     if request.method == "POST":
+        user_names = cursor.execute("SELECT name FROM users").fetchall()
+        return render_template("general.html", user_names=user_names)
+     else:
+        return "Unauthorized"
+
 
 if __name__ == "__main__":
     # Uncomment here if you have problems
