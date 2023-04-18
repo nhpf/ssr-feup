@@ -24,5 +24,5 @@ fi
 if [ "$1" = "enterprise" ]
   then
       cd ./enterprise
-      echo "Not implemented yet!"
+      npm run dev
 fi
