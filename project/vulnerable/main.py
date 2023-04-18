@@ -61,6 +61,11 @@ def index():
     # return render_template("index.html", users=users)
     return render_template("index.html")
 
+@app.route("/debug")
+def debug():
+    users = cursor.execute("SELECT * FROM users").fetchall()
+    return render_template("debug.html", users=users)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -80,7 +85,7 @@ def login():
         if user:
             # if the user exists, redirect to their dashboard
             return render_template(
-                "secret.html", secret=user["secret"], image=user["image"]
+                "secret.html", secret=user["secret"], image=user["image"], name=user["name"]
             )
         else:
             # if the user doesn't exist, display an error message
