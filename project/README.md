@@ -40,9 +40,23 @@ To install the required modules run:
 pip install -r requirements.txt
 ```
 
-And you can execute each application by running `python main.py`.
+And then you can execute each application using the `./exec_app.sh` script.
 
-[Black](https://github.com/python/black) is used for code formatting.
+## Exploits
+
+The exploits are set up as tests written with the `unittest` Python unit testing framework.
+
+Each test focuses on a different exploit approach and should fail on the `vulnerable` application while passing in the `secure`.
+
+When web page interactivity is needed to perform the exploit, the `selenium` browser automation framework will be used.
+
+---
+
+## Contributing
+
+Only submit a PR to the master branch when each new item in the roadmap is in a minimal working condition.
+
+Use [Black](https://github.com/python/black) for code formatting.
 
 <details>
 <summary>Proposal feedback from professor</summary>
