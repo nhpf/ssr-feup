@@ -88,3 +88,5 @@ Claro que as sugestões também dependem do progresso que forem fazendo ao longo
  - [Blobs in SQLite](https://stackoverflow.com/questions/51301395/how-to-store-a-jpg-in-an-sqlite-database-with-python)
  - [Breakable Flask GitHub repo](https://github.com/stephenbradshaw/breakableflask)
  - [Firebase documentation](https://firebase.google.com/docs)
+ - [SEED Labs - SQL Injection Attack Lab](https://seedsecuritylabs.org/Labs_20.04/Web/Web_SQL_Injection/)
+ - [Testing Flask Applications with Pytest](https://testdriven.io/blog/flask-pytest/)

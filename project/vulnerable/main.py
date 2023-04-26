@@ -61,9 +61,10 @@ def index():
     # return render_template("index.html", users=users)
     return render_template("index.html")
 
+
 @app.route("/debug")
 def debug():
-    users = cursor.execute("SELECT * FROM users").fetchall()
+    users = cursor.executescript("SELECT * FROM users").fetchall()
     return render_template("debug.html", users=users)
 
 
@@ -72,20 +73,20 @@ def login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-        print("Email:", email)
-        print("Password:", password)
 
         # execute an SQL query to check if the user exists in the database
-        cursor.execute(
-            "SELECT * FROM users WHERE email=? AND password=?",
-            (email, password),
+        cursor.executescript(
+            f"SELECT * FROM users WHERE email='{email}' AND password='{password}'",
         )
         user = cursor.fetchone()
 
         if user:
             # if the user exists, redirect to their dashboard
             return render_template(
-                "secret.html", secret=user["secret"], image=user["image"], name=user["name"]
+                "secret.html",
+                secret=user["secret"],
+                image=user["image"],
+                name=user["name"],
             )
         else:
             # if the user doesn't exist, display an error message
@@ -108,26 +109,28 @@ def signup():
         if not email or not password or not name:
             return "Missing information!"
 
-        cursor.execute("SELECT email FROM users WHERE email=?", (email,))
+        cursor.executescript(f"SELECT email FROM users WHERE email='{email}'")
         db_email = cursor.fetchone()
 
-        if db_email or not email:
+        if db_email:
             return "User already registered <br/>" 'Go <a href="/login">Login</a> '
-        else:
-            cursor.execute(
-                "INSERT INTO users (name, email, password, secret, image) VALUES (?, ?, ?, ?, ?)",
-                (name, email, password, "your secret", b""),
-            )
-            conn.commit()
+
+        cursor.executescript(
+            f"""INSERT INTO users (name, email, password, secret, image) VALUES
+                ('{name}', '{email}', '{password}', 'your secret', '')
+            """
+        )
+        conn.commit()
         return "User signed up <br/>" 'Go <a href="/login">Login</a> '
     else:
         return render_template("signup.html")
 
+
 @app.route("/general", methods=["GET"])
 def general():
-     user_names = cursor.execute("SELECT name FROM users").fetchall()
-     return render_template("general.html", user_names=user_names)
-     
+    user_names = cursor.executescript("SELECT name FROM users").fetchall()
+    return render_template("general.html", user_names=user_names)
+
 
 if __name__ == "__main__":
     # Uncomment here if you have problems

@@ -15,6 +15,7 @@
    - Some exploit on login
    - Image content exploit
    - XSS on sign up
+   - Cross-site request forgery
    - Timing attacks?
    - Server access compromising?
 
