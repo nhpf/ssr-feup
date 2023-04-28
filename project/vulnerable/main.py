@@ -75,7 +75,7 @@ def login():
         password = request.form.get("password")
 
         # execute an SQL query to check if the user exists in the database
-        cursor.executescript(
+        cursor.execute(
             f"SELECT * FROM users WHERE email='{email}' AND password='{password}'",
         )
         user = cursor.fetchone()
