@@ -83,5 +83,51 @@ class TestSQLInjection(unittest.TestCase):
         self.assertFalse(req.ok)
 
 
+class testSQLInjectionOnLogin(unittest.TestCase):
+    """Performs SQL injection in Login"""
+ 
+    def test_requests_login_inject_in_email(self):
+        injection = "wxyz' OR 1=1; --"
+
+        req = requests.post(
+            "http://127.0.0.1:5000/login",
+            data={
+                "email": injection,
+                "password": "test123",
+            },
+        )
+        print(req.text)
+        self.assertNotEqual(req.status_code, 200)
+    
+    def test_requests_login_inject_in_password(self):
+        injection = "wxyz' OR 1=1; --"
+
+        req = requests.post(
+            "http://127.0.0.1:5000/login",
+            data={
+                "email": "test123",
+                "password": injection,
+            },
+        )
+        print(req.text)
+        self.assertNotEqual(req.status_code, 200)
+    
+    def test_login_dictionary(self):
+        #Go through file
+        with open('wordlist.txt', 'r') as file:
+            for line_number, potential_password in enumerate(file, start=1):
+                #Implement requests and check sucess
+                #Missing generalization for user 
+                req = requests.post("http://127.0.0.1:5000/login",data={"email": "alice@example.com","password": potential_password,},)
+                if(req.status_code ==200):
+                    print("Sucessfully cracked password")
+                    break
+
+
+
+        self.assertFalse(0,0)
+
+
+
 if __name__ == "__main__":
     unittest.main()
