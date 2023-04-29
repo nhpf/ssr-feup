@@ -7,6 +7,12 @@ from flask import Flask, render_template, request
 database_fname = "users.db"
 
 
+def convert_to_blob(img_b64: str | bytes) -> bytes:
+    if isinstance(img_b64, str):
+        return img_b64.encode()
+    return img_b64
+
+
 def get_db_connection() -> sqlite3.Connection:
     # Check if the db already exists before creating it
     db_exists = os.path.isfile(database_fname)
@@ -65,7 +71,14 @@ def index():
 @app.route("/debug")
 def debug():
     users = cursor.executescript("SELECT * FROM users").fetchall()
-    return render_template("debug.html", users=users)
+
+    # Ensure all images are binary strings
+    user_list = []
+    for user in users:
+        user["image"] = convert_to_blob(user["image"])
+        user_list.append(user)
+
+    return render_template("debug.html", users=user_list)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -85,7 +98,7 @@ def login():
             return render_template(
                 "secret.html",
                 secret=user["secret"],
-                image=user["image"],
+                image=convert_to_blob(user["image"]),
                 name=user["name"],
             )
         else:
@@ -128,7 +141,8 @@ def signup():
 
 @app.route("/general", methods=["GET"])
 def general():
-    user_names = cursor.executescript("SELECT name FROM users").fetchall()
+    user_names = cursor.execute("SELECT name FROM users").fetchall()
+    print(user_names)
     return render_template("general.html", user_names=user_names)
 
 

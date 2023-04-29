@@ -5,6 +5,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
+DEBUG = False
 HOST = "127.0.0.1"
 PORT = 5000
 
@@ -17,29 +18,33 @@ def check_application_status() -> None:
         raise Exception(
             "The application server is not active! Run ./exec_app.sh before performing any tests."
         )
-    print("Successful connection test!")
+    if DEBUG:
+        print("\nSuccessful connection test!\n")
+
+
+def repopulate_db() -> None:
+    # Fill user table with data
+    requests.post(
+        f"http://{HOST}:{PORT}/signup",
+        data={
+            "name": "Alice",
+            "email": "alice@example.com",
+            "password": "alice123",
+        },
+    )
+    requests.post(
+        f"http://{HOST}:{PORT}/signup",
+        data={"name": "Bob", "email": "bob@example.com", "password": "bob123"},
+    )
 
 
 class TestSQLInjection(unittest.TestCase):
     """Performs a simple SQL injection to illustrate the capabilities of pytest for the team."""
 
     def setUp(self) -> None:
-        # Verify if application is running
+        # Ensure that the application is running well
         check_application_status()
-
-        # Fill user table with data
-        requests.post(
-            f"http://{HOST}:{PORT}/signup",
-            data={
-                "name": "Alice",
-                "email": "alice@example.com",
-                "password": "alice123",
-            },
-        )
-        requests.post(
-            f"http://{HOST}:{PORT}/signup",
-            data={"name": "Bob", "email": "bob@example.com", "password": "bob123"},
-        )
+        repopulate_db()
 
     def test_selenium_delete_rows(self):
         injection = "wxyz', '', '', '', ''); DELETE FROM users; --"
@@ -82,12 +87,22 @@ class TestSQLInjection(unittest.TestCase):
 
         self.assertFalse(req.ok)
 
+    def tearDown(self) -> None:
+        # Ensure that the application is fine
+        check_application_status()
+        repopulate_db()
 
-class testSQLInjectionOnLogin(unittest.TestCase):
+
+class TestSQLInjectionOnLogin(unittest.TestCase):
     """Performs SQL injection in Login"""
- 
+
+    def setUp(self) -> None:
+        # Ensure that the application is running well
+        check_application_status()
+        repopulate_db()
+
     def test_requests_login_inject_in_email(self):
-        injection = "wxyz' OR 1=1; --"
+        injection = "wxyz' OR 1=1 --"
 
         req = requests.post(
             "http://127.0.0.1:5000/login",
@@ -96,11 +111,14 @@ class testSQLInjectionOnLogin(unittest.TestCase):
                 "password": "test123",
             },
         )
-        print(req.text)
+
+        if DEBUG and req.status_code == 200:
+            print(f"We have exposed user data: {req.text}")
+
         self.assertNotEqual(req.status_code, 200)
-    
+
     def test_requests_login_inject_in_password(self):
-        injection = "wxyz' OR 1=1; --"
+        injection = "wxyz' OR 1=1 --"
 
         req = requests.post(
             "http://127.0.0.1:5000/login",
@@ -109,24 +127,52 @@ class testSQLInjectionOnLogin(unittest.TestCase):
                 "password": injection,
             },
         )
-        print(req.text)
+
+        if DEBUG and req.status_code == 200:
+            print(f"We have exposed user data: {req.text}")
+
         self.assertNotEqual(req.status_code, 200)
-    
+
+    def tearDown(self) -> None:
+        # Ensure that the application is fine
+        check_application_status()
+        repopulate_db()
+
+
+class TestBruteForceAttacks(unittest.TestCase):
+    """Tests if dictionary-based password cracking is feasible"""
+
+    def setUp(self) -> None:
+        # Ensure that the application is running well
+        check_application_status()
+        repopulate_db()
+
     def test_login_dictionary(self):
-        #Go through file
-        with open('wordlist.txt', 'r') as file:
-            for line_number, potential_password in enumerate(file, start=1):
-                #Implement requests and check sucess
-                #Missing generalization for user 
-                req = requests.post("http://127.0.0.1:5000/login",data={"email": "alice@example.com","password": potential_password,},)
-                if(req.status_code ==200):
-                    print("Sucessfully cracked password")
+        known_email = "alice@example.com"
+        has_cracked = False
+        # Go through file
+        with open("wordlist.txt", "r") as file:
+            for potential_password in file.readlines():
+                # Perform requests and check for success
+                req = requests.post(
+                    "http://127.0.0.1:5000/login",
+                    data={"email": known_email, "password": potential_password},
+                )
+                if req.status_code == 200:
+                    has_cracked = True
+                    if DEBUG:
+                        print(
+                            f"Found user credentials: {known_email} -> {potential_password}"
+                            f"\nWe have exposed user data: {req.text}"
+                        )
                     break
 
+        self.assertFalse(has_cracked)
 
-
-        self.assertFalse(0,0)
-
+    def tearDown(self) -> None:
+        # Ensure that the application is fine
+        check_application_status()
+        repopulate_db()
 
 
 if __name__ == "__main__":
