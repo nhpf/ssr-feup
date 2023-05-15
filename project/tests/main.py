@@ -175,5 +175,38 @@ class TestBruteForceAttacks(unittest.TestCase):
         repopulate_db()
 
 
+class TestImageExploits(unittest.TestCase):
+    def setUp(self) -> None:
+        # Ensure that the application is running well
+        check_application_status()
+        repopulate_db()
+
+    def test_xss_in_gif_metadata(self):
+        # Define sample GIF image: 2x2 red square
+        gif_data = bytes.fromhex("474946383761020002020180ff000000ffff2cff0000000000020002020084020051003b")
+
+        # Separate GIF data from metadata
+        gif_img_metadata = gif_data[:13]
+        gif_img_data = gif_data[13:]
+
+        # Define JavaScript to be executed and convert it to ASCII hex
+        js_hex = "".join([hex(ord(c))[2:] for c in "<script>alert('XSS');</script>"])
+
+        # Inject JavaScript into the image metadata
+        gif_img_metadata += f";\n{js_hex}\n".encode("ascii")
+
+        # Get new image by concatenating the new metadata with the old image data
+        gif_data = gif_img_metadata + gif_img_data
+
+        # Save the new GIF image to a file
+        with open("exploited.gif", "wb") as f:
+            f.write(gif_data)
+
+    def tearDown(self) -> None:
+        # Ensure that the application is fine
+        check_application_status()
+        repopulate_db()
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,14 @@
+import base64
+
+# Define the HTML code with the base64 encoded image
+html = (
+    "<img src='data:image/png;base64,"
+    + base64.b64encode(
+        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x02\x00\x00\x00\x02\x08\x02\x00\x00\x00n\x83\xf5\x8f\x00\x00\x00\x06PLTE\xff\x00\x00\x00\xff\x00\x00\xff\xff\xff\x00\x00\x00\nIDAT\x08\xd7c\xf8\xbf\x00\x01\x05\x00\x01\x05\x01\x1a\xb9|\x00\x00\x00\x00<script>alert('XSS');</script>IEND\xaeB`\x82"
+    ).decode("utf-8")
+    + "'/>"
+)
+
+# Write the HTML to a file
+with open("xss.html", "w") as f:
+    f.write(html)
