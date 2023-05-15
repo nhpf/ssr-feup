@@ -16,11 +16,13 @@ LAB3: [ARP Cache Poisoning Attack Lab](https://seedsecuritylabs.org/Labs_20.04/N
 
 LAB4: [TCP Attacks Lab](https://seedsecuritylabs.org/Labs_20.04/Networking/TCP_Attacks/) in SEEDLabs
 
-LAB5: RSA lab with guide provided [here](https://s.up.pt/ylk2) provided by FEUP
+LAB5: [RSA Lab](https://s.up.pt/ylk2) provided by FEUP
 
 LAB6: [Firewall Exploration Lab](https://seedsecuritylabs.org/Labs_20.04/Networking/Firewall/) in SEEDLabs
 
 LAB7: [Firewall Evasion and VPN Usage Lab](https://s.up.pt/q12h) provided by FEUP
+
+LAB8: [PKI Lab](https://seedsecuritylabs.org/Labs_20.04/Crypto/Crypto_PKI/) and [TLS Lab](https://seedsecuritylabs.org/Labs_20.04/Crypto/Crypto_TLS/) in SEEDLabs
 
 ---
 

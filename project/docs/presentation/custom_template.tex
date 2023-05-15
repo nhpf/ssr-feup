@@ -1,0 +1,15 @@
+\usepackage{framed}
+\usepackage{xcolor}
+\usepackage{multicol}
+
+\setbeamertemplate{itemize items}[default]
+\setbeamertemplate{enumerate items}[default]
+
+\usepackage{caption}
+\captionsetup[figure]{name=,labelsep=none,labelformat=empty}
+
+\let\oldquote=\quote
+\let\endoldquote=\endquote
+\colorlet{shadecolor}{blue!15}
+\renewenvironment{quote}{\begin{shaded*}\begin{oldquote}}{\end{oldquote}\end{shaded*}}
+
