@@ -50,7 +50,7 @@ class TestSQLInjection(unittest.TestCase):
         injection = "wxyz', '', '', '', ''); DELETE FROM users; --"
 
         # Use selenium to access the application
-        driver.get("http://127.0.0.1:5000/signup")
+        driver.get(f"http://{HOST}:{PORT}/signup")
         driver.find_element(by="id", value="name").send_keys(injection)
         driver.find_element(by="id", value="email").send_keys("test@example.com")
         driver.find_element(by="id", value="password").send_keys("test123")
@@ -77,7 +77,7 @@ class TestSQLInjection(unittest.TestCase):
         injection = "wxyz', '', '', '', ''); DELETE FROM users; --"
 
         req = requests.post(
-            "http://127.0.0.1:5000/signup",
+            f"http://{HOST}:{PORT}/signup",
             data={
                 "name": injection,
                 "email": "test@example.com",
@@ -105,7 +105,7 @@ class TestSQLInjectionOnLogin(unittest.TestCase):
         injection = "wxyz' OR 1=1 --"
 
         req = requests.post(
-            "http://127.0.0.1:5000/login",
+            f"http://{HOST}:{PORT}/login",
             data={
                 "email": injection,
                 "password": "test123",
@@ -121,7 +121,7 @@ class TestSQLInjectionOnLogin(unittest.TestCase):
         injection = "wxyz' OR 1=1 --"
 
         req = requests.post(
-            "http://127.0.0.1:5000/login",
+            f"http://{HOST}:{PORT}/login",
             data={
                 "email": "test123",
                 "password": injection,
@@ -155,7 +155,7 @@ class TestBruteForceAttacks(unittest.TestCase):
             for potential_password in file.readlines():
                 # Perform requests and check for success
                 req = requests.post(
-                    "http://127.0.0.1:5000/login",
+                    f"http://{HOST}:{PORT}/login",
                     data={"email": known_email, "password": potential_password},
                 )
                 if req.status_code == 200:
@@ -168,6 +168,37 @@ class TestBruteForceAttacks(unittest.TestCase):
                     break
 
         self.assertFalse(has_cracked)
+
+    def tearDown(self) -> None:
+        # Ensure that the application is fine
+        check_application_status()
+        repopulate_db()
+
+
+class TestXSSOnUsername(unittest.TestCase):
+    """Tests if XSS is viable on username"""
+
+    def setUp(self) -> None:
+        # Ensure that the application is running well
+        check_application_status()
+        repopulate_db()
+
+    def test_xss_in_user_name(self):
+        script = "<script> alert(1); </script>"
+
+        req = requests.post(
+            f"http://{HOST}:{PORT}/signup",
+            data={
+                "name": script,
+                "email": "test@example.com",
+                "password": "test123",
+            },
+        )
+
+        res = requests.get(f"http://{HOST}:{PORT}/general")
+        print(res.raw)  # TODO: check with regex if it is escaped
+
+        self.assertFalse(req.ok)
 
     def tearDown(self) -> None:
         # Ensure that the application is fine
@@ -201,6 +232,8 @@ class TestImageExploits(unittest.TestCase):
         # Save the new GIF image to a file
         with open("exploited.gif", "wb") as f:
             f.write(gif_data)
+
+        # TODO: upload file
 
     def tearDown(self) -> None:
         # Ensure that the application is fine

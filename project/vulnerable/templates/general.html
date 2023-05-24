@@ -8,7 +8,7 @@
     <h1>List of users</h1>
     {%for name in user_names%}
    <div>
-        {{ name["name"] }}
+        {{ name["name"]|safe }}
     </div>
     {% endfor %}
 

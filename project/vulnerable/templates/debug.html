@@ -10,11 +10,11 @@
     Listing all users... 
     {% for user in users %}
         <div>
-            {{ user["name"] }}'s info:
-            Email: {{ user["email"] }} <br>
-            Password: {{ user["password"] }} <br>
-            Secret phrase: {{ user["secret"] }} <br>
-            <img src="data:image/png;base64, {{ user['image'].decode('utf-8') }}" width="100"/> 
+            {{ user["name"]|safe }}'s info:
+            Email: {{ user["email"]|safe }} <br>
+            Password: {{ user["password"]|safe }} <br>
+            Secret phrase: {{ user["secret"]|safe }} <br>
+            <img src="data:image/png;base64, {{ user['image'].decode('utf-8')|safe }}" width="100"/>
             <hr>
         </div>
     {% endfor %}
