@@ -3,6 +3,8 @@ import json
 import base64
 import sqlite3
 from flask import Flask, render_template, request
+from markupsafe import escape
+from html_sanitizer import Sanitizer
 
 database_fname = "users.db"
 
@@ -115,9 +117,9 @@ def login():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
+        name = Sanitizer().sanitize(request.form.get("name"))
+        email = Sanitizer().sanitize(request.form.get("email"))
+        password = Sanitizer().sanitize(request.form.get("passowrd"))
 
         if not email or not password or not name:
             return "Missing information!"
@@ -143,7 +145,7 @@ def signup():
 def general():
     user_names = cursor.execute("SELECT name FROM users").fetchall()
     print(user_names)
-    return render_template("general.html", user_names=user_names)
+    return render_template("general.html", user_names=escape(user_names))
 
 
 if __name__ == "__main__":
