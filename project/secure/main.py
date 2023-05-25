@@ -111,6 +111,35 @@ def login():
     else:
         return render_template("login.html")
 
+import re
+
+def is_password_strong(password):
+    # Minimum length requirement
+    if len(password) < 8:
+        return False
+
+    # Check for uppercase, lowercase, digits, and special characters
+    has_uppercase = any(char.isupper() for char in password)
+    has_lowercase = any(char.islower() for char in password)
+    has_digit = any(char.isdigit() for char in password)
+    has_special = re.search(r"[!@#$%^&*()\-_=+{}[\]|;:'\"<>,.?/~`]", password)
+
+    if not has_uppercase or not has_lowercase or not has_digit or not has_special:
+        return False
+
+    # Check against common password list
+    with open("wordlist.txt", "r") as file:
+        common_passwords = file.read().splitlines()
+
+    if password in common_passwords:
+        return False
+
+    return True
+
+
+
+
+
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -121,6 +150,10 @@ def signup():
 
         if not email or not password or not name:
             return "Missing information!"
+        
+        if not is_password_strong(password):
+            return "Password is too weak. Please choose a stronger password."
+
 
         cursor.executescript(f"SELECT email FROM users WHERE email='{email}'")
         db_email = cursor.fetchone()
