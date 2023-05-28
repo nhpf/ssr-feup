@@ -2,9 +2,10 @@ import os
 import json
 import base64
 import sqlite3
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, session
 from markupsafe import escape
 from html_sanitizer import Sanitizer
+from PIL import Image
 
 database_fname = "users.db"
 
@@ -58,6 +59,8 @@ conn = get_db_connection()
 
 # Declare flask app
 app = Flask(__name__, template_folder="templates")
+# Set a random secret key to sign session data
+app.secret_key = os.urandom(32)
 
 # Create a cursor object
 cursor = conn.cursor()
@@ -97,12 +100,8 @@ def login():
 
         if user:
             # if the user exists, redirect to their dashboard
-            return render_template(
-                "secret.html",
-                secret=user["secret"],
-                image=convert_to_blob(user["image"]),
-                name=user["name"],
-            )
+            session["email"] = email
+            return redirect("/secret")
         else:
             # if the user doesn't exist, display an error message
             return (
@@ -148,6 +147,41 @@ def is_password_strong(password):
         return False
 
     return True
+
+
+@app.route("/secret", methods=["GET", "POST"])
+def change_user_data():
+    email = session["email"]
+    if not email:
+        return 'Unauthorized. Try logging in: <a href="/login">Login</a>.'
+
+    if request.method == "GET":
+        cursor.execute(f"SELECT * FROM users WHERE email='{session['email']}'")
+        user = cursor.fetchone()
+        return render_template(
+            "secret.html",
+            secret=user["secret"],
+            image=convert_to_blob(user["image"]),
+            name=user["name"],
+        )
+
+    if request.method == "POST":
+        secret = request.form.get("phrase")
+
+        if secret:
+            cursor.executescript(
+                f"UPDATE users SET secret='{secret}' WHERE email='{email}'"
+            )
+
+        if "file" in request.files:
+            
+            image = request.files["file"]
+            with Image.open(image) as img:
+                img.save(image)
+            img_b64 = base64.b64encode(image.read())
+            cursor.execute("UPDATE users SET image=? WHERE email=?", (img_b64, email))
+
+        return redirect(request.url)
 
 
 @app.route("/signup", methods=["GET", "POST"])
