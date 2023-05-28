@@ -86,12 +86,12 @@ def debug():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+        email = Sanitizer().sanitize(request.form.get("email"))
+        password = Sanitizer().sanitize(request.form.get("password"))
 
-        # execute an SQL query to check if the user exists in the database
+        # execute a parameterized SQL query to check if the user exists in the database
         cursor.execute(
-            f"SELECT * FROM users WHERE email='{email}' AND password='{password}'",
+            "SELECT * FROM users WHERE email = ? AND password = ?", (email, password)
         )
         user = cursor.fetchone()
 
@@ -113,7 +113,18 @@ def login():
     else:
         return render_template("login.html")
 
+
 import re
+
+
+def is_valid_email(email):
+    # Regular expression pattern for email validation
+    pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+
+    match = re.match(pattern, email)
+
+    return match is not None
+
 
 def is_password_strong(password):
     # Minimum length requirement
@@ -139,34 +150,32 @@ def is_password_strong(password):
     return True
 
 
-
-
-
-
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         name = Sanitizer().sanitize(request.form.get("name"))
         email = Sanitizer().sanitize(request.form.get("email"))
-        password = Sanitizer().sanitize(request.form.get("passowrd"))
+        password = Sanitizer().sanitize(request.form.get("password"))
 
         if not email or not password or not name:
             return "Missing information!"
-        
+
         if not is_password_strong(password):
             return "Password is too weak. Please choose a stronger password."
 
+        if not is_valid_email(email):
+            return "Invalid email. Please try again."
 
-        cursor.executescript(f"SELECT email FROM users WHERE email='{email}'")
+        cursor.execute("SELECT email FROM users WHERE email = ?", (email,))
         db_email = cursor.fetchone()
 
         if db_email:
             return "User already registered <br/>" 'Go <a href="/login">Login</a> '
 
-        cursor.executescript(
-            f"""INSERT INTO users (name, email, password, secret, image) VALUES
-                ('{name}', '{email}', '{password}', 'your secret', '')
-            """
+        # parameterized SQL query
+        cursor.execute(
+            "INSERT INTO users (name, email, password, secret, image) VALUES (?, ?, ?, 'your secret', '')",
+            (name, email, password),
         )
         conn.commit()
         return "User signed up <br/>" 'Go <a href="/login">Login</a> '
